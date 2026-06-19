@@ -2,6 +2,7 @@ node_modules/
 .env
 .env.production
 BKP/
+FILES/
 src-backup/
 frontend/
 Construçao_README.docx

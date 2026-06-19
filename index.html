@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8" />
+    <!-- Meta-tag crítica para garantir o layout responsivo em smartphones, tablets e computadores -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Briefing Interativo & Dashboard Administrativo</title>
+    
+    <!-- Fontes Modernas e Ícones para o Dashboard -->
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Estrutura Geral de Layout Semelhante ao Exemplo (Injetada de forma Responsiva pelo React) -->
+    <div id="app-layout">
+        <!-- 
+          O React (App.jsx) vai renderizar toda a interface aqui dentro.
+          A nível de estrutura gerada, o layout final vai comportar-se assim:
+          
+          1. <nav class="menu-navegacao"> -> Barra superior responsiva ou lateral dependendo do ecrã.
+          2. <header class="cabecalho">   -> Painel de contexto principal (Hero Section).
+          3. <main class="conteudo">      -> Grid/Flexbox responsivo que molda os cartões.
+          4. <div id="root"></div>        -> Ponto de ancoragem obrigatório do ecossistema React.
+        -->
+        <div id="root"></div><!-- O React irá montar a aplicação aqui -->
+    </div>
+
+    <!-- Script de inicialização do compilador (Vite) para processar o JSX e injetar o CSS automaticamente -->
+    <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>

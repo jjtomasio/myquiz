@@ -3,6 +3,7 @@ node_modules/
 .env.production
 BKP/
 FILES/
+files/database.md
 src-backup/
 frontend/
 Construçao_README.docx

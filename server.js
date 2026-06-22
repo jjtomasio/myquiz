@@ -42,9 +42,16 @@ const pool = mysql.createPool({ //
     database: process.env.DATABASE_NAME,
 });
 */
-// ROTA EXTRA: Obter total exato de perguntas ativas no banco
+// ROTA VERIFIÇAO: Verificar ligação ao backend / Estado do Quiz
+app.get('/api/status', (req, res) => {
+    res.json({ 
+        success: true, 
+        message: 'O quiz está pronto a ser iniciado!',
+        timestamp: new Date()
+    });
+});
 
-
+// ROTA INICIAL: Obter total exato de perguntas ativas no banco
 app.get('/api/total_perguntas_ativas', async (req, res) => {
     try {
         const [result] = await pool.query('SELECT COUNT(*) as total FROM perguntas WHERE activa = "Y"');
@@ -54,7 +61,7 @@ app.get('/api/total_perguntas_ativas', async (req, res) => {
     }
 });
 
-// 1. ROTA DO FLUXO: Obter perguntas com as respetivas respostas vinculadas
+
 // 1. ROTA DO FLUXO: Obter perguntas com as respetivas respostas vinculadas
 app.get('/api/init_jogo', async (req, res) => {
     try {
@@ -163,21 +170,22 @@ app.post('/api/submeter', async (req, res) => {
 
     } catch (err) {
         await connection.rollback();
-        res.status(500).json({ error: err.message });
+        res.status(400).json({ error: err.message });
+        console.log.error("Erro ao submeter respostas:", err);
     } finally {
         connection.release();
     }
 });
 
-// 3. CRUD (READ): Obter todas as leads guardadas na tabela user
-app.get('/api/userstemp', async (req, res) => {
+// 3. CRUD (READ): Obter todas as registos de jogadores/utilizadores
+/*app.get('/api/userstemp', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT id_user, nome, email, telefone, criado_em FROM user ORDER BY id_user DESC');
         res.json(rows);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
-});
+});*/
 
 app.get('/api/users', async (req, res) => {
     try {
@@ -218,7 +226,7 @@ ORDER BY pontuacao_maxima DESC, s.criado_em DESC`;
 
 
 // 4. CRUD (DELETE): Remover utilizador por ID
-// 4. CRUD (DELETE): actualizar codifo para Remover uma série específica e limpar o user se não tiver mais jogos
+
 app.delete('/api/series/:id_serie', async (req, res) => {
     const { id_serie } = req.params;
     const { id_user } = req.query; // Passado via query string para validação
@@ -258,6 +266,37 @@ app.delete('/api/series/:id_serie', async (req, res) => {
         res.status(500).json({ error: err.message });
     } finally {
         connection.release();
+    }
+});
+
+
+// ROTA 5: Alterar o e-mail de um utilizador por ID
+app.put('/api/users/:id_user/email', async (req, res) => {
+    const { id_user } = req.params;
+    const { email } = req.body;
+
+    if (!id_user || !email) {
+        return res.status(400).json({ error: "O ID do utilizador e o novo e-mail são obrigatórios." });
+    }
+
+    // Validação simples de e-mail no lado do servidor
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: "O formato do e-mail introduzido é inválido." });
+    }
+
+    try {
+        // Atualiza o e-mail na tabela 'user'
+        const [result] = await pool.query('UPDATE user SET email = ? WHERE id_user = ?', [email, id_user]);
+        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Utilizador não encontrado." });
+        }
+
+        res.json({ success: true, message: 'E-mail atualizado com sucesso!' });
+    } catch (err) {
+        console.error("Erro ao alterar e-mail do utilizador:", err);
+        res.status(500).json({ error: err.message });
     }
 });
 

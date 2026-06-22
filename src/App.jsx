@@ -5,9 +5,10 @@ const API_URL = 'http://localhost:3000/api';
 
 function App() {
   const [abaAtiva, setAbaAtiva] = useState('client');
-
+  // Estado para verificar a ligação e o status da API
+  const [statusAPI, setStatusAPI] = useState('A verificar ligação...');
   // Estados do Fluxo do Cliente
-  const [passo, setPasso] = useState('welcome'); // welcome -> perguntas -> tempo_acabou -> fim
+  const [passo, setPasso] = useState('welcome'); 
   const [imagemFundo, setImagemFundo] = useState(null);
   const [listaPerguntas, setListaPerguntas] = useState([]);
   const [indiceAtual, setIndiceAtual] = useState(0);
@@ -29,33 +30,38 @@ function App() {
   const [carregandoAdmin, setCarregandoAdmin] = useState(false);
   const [errorAdmin, setErrorAdmin] = useState(null);
 
-  // 1. Buscar o total de perguntas mal a app arranca
+  // Estados extra para alteração de Email em linha
+  const [editandoUserId, setEditandoUserId] = useState(null);
+  const [novoEmailInput, setNovoEmailInput] = useState('');
+
   useEffect(() => {
-    // Procura o número total assim que a página abre
+    // Verifica se a API está online e pronta
+    fetch(`${API_URL}/status`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.success) {
+          setStatusAPI(data.message); // Define a mensagem: "O quiz está pronto a ser iniciado!"
+        } else {
+          setStatusAPI('Servidor online, mas com resposta inesperada.');
+        }
+      })
+      .catch(err => {
+        console.error("Erro na ligação à API:", err);
+        setStatusAPI('Sem ligação ao servidor do Quiz.');
+      });
+
+    // consulta para carregamento inicial
     fetch(`${API_URL}/total_perguntas_ativas`)
       .then(res => res.json())
       .then(data => {
         if (data && data.total) {
-          setTotalPerguntasBanco(Number(data.total)); // 🔥 Força a conversão para Número
+          setTotalPerguntasBanco(Number(data.total));
         }
       })
       .catch(err => console.error("Erro ao buscar total:", err));
 
-    // Carrega o primeiro bloco de perguntas
     carregarPerguntas();
   }, []);
-
-  const buscarTotalPerguntasAtivas = async () => {
-    try {
-      const res = await fetch(`${API_URL}/total_perguntas_ativas`);
-      if (res.ok) {
-        const data = await res.json();
-        setTotalPerguntasBanco(data.total);
-      }
-    } catch (err) {
-      console.error('Erro ao obter total de perguntas:', err);
-    }
-  };
 
   useEffect(() => {
     if (abaAtiva === 'admin') {
@@ -78,16 +84,57 @@ function App() {
     }
   };
 
+  const alterarEmail = async (id_user, emailAtual) => {
+    const emailFormatado = novoEmailInput.trim();
+
+    if (!emailFormatado || emailFormatado === emailAtual) {
+      alert('Por favor, introduza um e-mail diferente do e-mail atual.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailFormatado)) {
+      alert('Por favor, introduza um endereço de e-mail válido (exemplo: nome@dominio.com).');
+      return;
+    }
+
+    if (!window.confirm(`Tens a certeza que pretendes alterar o e-mail para "${emailFormatado}"?`)) return;
+
+    try {
+      const res = await fetch(`${API_URL}/users/${id_user}/email`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailFormatado })
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        alert('E-mail updated com sucesso!');
+        setUsuariosAdmin(usuariosAdmin.map(user => {
+          if (user.id_user === id_user) {
+            return { ...user, email: emailFormatado };
+          }
+          return user;
+        }));
+        setEditandoUserId(null);
+        setNovoEmailInput('');
+      } else {
+        alert(`Erro: ${data.error || 'Não foi possível atualizar o e-mail.'}`);
+      }
+    } catch (err) {
+      alert('Erro na ligação ao servidor.');
+    }
+  };
+
   const eliminarUtilizador = async (id_serie, id_user) => {
     if (!window.confirm('Pretendes eliminar esta tentativa de jogo permanentemente?')) return;
     try {
-      // Chama o novo endpoint passando o id_serie na rota e o id_user como query parameter
       const res = await fetch(`${API_URL}/series/${id_serie}?id_user=${id_user}`, {
         method: 'DELETE'
       });
 
       if (res.ok) {
-        // Remove a linha correspondente do estado do painel administrativo imediatamente
         setUsuariosAdmin(usuariosAdmin.filter(user => user.id_serie !== id_serie));
       } else {
         alert('Erro ao processar a eliminação na base de dados.');
@@ -103,7 +150,6 @@ function App() {
   };
 
   const selecionarOpcao = (id_perg, id_resp, valor) => {
-    // IMPORTANTE: Removemos duplicados com base no id_perg para evitar que respostas à mesma pergunta inflem o score
     const filtradas = respostasEscolhidas.filter(r => r.id_perg !== id_perg);
     const novasRespostas = [...filtradas, { id_perg, id_resp, valor }];
     setRespostasEscolhidas(novasRespostas);
@@ -155,7 +201,6 @@ function App() {
     }
   };
 
-  // 2. Limpar a função carregarPerguntas
   const carregarPerguntas = async (historicoAtual = quizzesJogados, manterPontos = false) => {
     setListaPerguntas([]);
     setIndiceAtual(0);
@@ -164,7 +209,6 @@ function App() {
       setRespostasEscolhidas([]);
       setQuizzesJogados([]);
       setQuizzesEsgotados(false);
-      // ATENÇÃO: Removemos daqui o setTotalPerguntasBanco(0) para não apagar o valor global!
       historicoAtual = [];
     }
 
@@ -199,13 +243,10 @@ function App() {
     }
   };
 
-  // Cálculo reativo para a barra de progresso do topo
-  const totalPerguntasJogo = Math.min(listaPerguntas.length, 5);
   const percentagemProgresso = totalPerguntasBanco > 0
     ? ((respostasEscolhidas.length / totalPerguntasBanco) * 100)
     : 0;
 
-  // Atualiza a imagem de fundo dinamicamente sempre que a pergunta muda
   useEffect(() => {
     if (abaAtiva === 'client' && passo === 'perguntas' && listaPerguntas.length > 0 && listaPerguntas[indiceAtual]) {
       const temaAtual = listaPerguntas[indiceAtual].tema || 'culture';
@@ -216,24 +257,12 @@ function App() {
     }
   }, [indiceAtual, passo, abaAtiva, listaPerguntas]);
 
-  // Regra matemática infalível baseada na tua indicação
-  //const maratonaTerminou = quizzesEsgotados || (totalPerguntasBanco > 0 && respostasEscolhidas.length >= totalPerguntasBanco);
-  //const maratonaTerminou = totalPerguntasBanco > 0 && respostasEscolhidas.length >= totalPerguntasBanco;
-  // Força o JavaScript a comparar Número com Número de forma estrita
-  const totalAtivas = Number(totalPerguntasBanco);
-  const totalRespondidas = Number(respostasEscolhidas.length);
-
-  //const maratonaTerminou = totalAtivas > 0 && totalRespondidas >= totalAtivas;
-  // Garante a comparação absoluta de números inteiros
-  //const maratonaTerminou = quizzesEsgotados || (Number(totalPerguntasBanco) > 0 && Number(respostasEscolhidas.length) >= Number(totalPerguntasBanco));
-  // Regra matemática pura e direta solicitada
   const maratonaTerminou = totalPerguntasBanco > 0 && Number(respostasEscolhidas.length) >= Number(totalPerguntasBanco);
 
   return (
     <div id="app-layout">
-      {/* Menu Superior */}
-      <nav className="menu-navegacao" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+      <nav className="menu-navegacao">
+        <div className="nav-container-esquerda">
           <button
             className={`nav-link ${abaAtiva === 'client' ? 'ativo' : ''}`}
             onClick={() => setAbaAtiva('client')}
@@ -242,8 +271,8 @@ function App() {
           </button>
 
           {abaAtiva === 'client' && passo === 'perguntas' && designacaoAtual && (
-            <span style={{ padding: '4px 12px', borderRadius: '15px', backgroundColor: '#ede9fe', color: '#7c3aed', fontSize: '0.85rem', fontWeight: '600' }}>
-              🎯 Tema: {designacaoAtual}
+            <span className="badge-tema">
+              🎯 {designacaoAtual}
             </span>
           )}
         </div>
@@ -259,43 +288,45 @@ function App() {
       <header
         className="cabecalho"
         style={imagemFundo ? {
-          backgroundImage: `linear-gradient(135deg, rgba(109, 40, 217, 0.65) 0%, rgba(124, 58, 237, 0.65) 50%, rgba(236, 72, 153, 0.65) 100%), url('${imagemFundo}')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          transition: 'background 0.4s ease-in-out'
+          backgroundImage: `linear-gradient(135deg, rgba(7, 73, 62, 0.65) 0%, rgba(54, 173, 157, 0.65) 50%, rgba(24, 66, 73, 0.65) 100%), url('${imagemFundo}')`
         } : {}}
       >
-        <h1>{abaAtiva === 'client' ? 'Quiz cultural' : 'Ranking de pontuações'}</h1>
+        <h1>{abaAtiva === 'client' ? 'Quiz cultura geral' : 'Ranking de pontuações'}</h1>
         <p>{abaAtiva === 'client' ? 'Desafia-te com perguntas sobre cultura geral' : 'Os melhores estão aqui'}</p>
       </header>
 
       <main className="conteudo">
         {abaAtiva === 'client' && (
           <div className="cartao-container">
-
-            {/* BOAS-VINDAS */}
             {passo === 'welcome' && (
-              <div style={{ textAlign: 'center' }}>
-                <h2 style={{ marginBottom: '14px' }}>Bem-vindo ao Quiz cultural</h2>
-                <p style={{ color: 'var(--secundario)', marginBottom: '24px' }}>
-                  Responde a blocos de perguntas dinâmicas e acumula o máximo de pontos que conseguires!
-                </p>
-                <button className="btn-principal" onClick={() => setPasso('perguntas')}>
-                  Começar Quiz
+              <div className="boas-vindas-container">
+                <h2>Bem-vindo ao Quiz cultural</h2>
+                <p>Responde a blocos de perguntas dinâmicas e acumula o máximo de pontos que conseguires!</p>
+
+                {/* Mensagem dinâmica de verificação da API via classes CSS */}
+                <div className={`status-api-alert ${statusAPI.includes('pronto') ? 'pronto' : 'erro'}`}>
+                  📡 {statusAPI}
+                </div>
+
+                <br />
+                
+                <button 
+                  className="btn-principal" 
+                  onClick={() => setPasso('perguntas')}
+                  disabled={!statusAPI.includes('pronto')}
+                >
+                  Iniciar Quiz
                 </button>
               </div>
             )}
 
-            {/* PERGUNTAS DINÂMICAS */}
             {passo === 'perguntas' && listaPerguntas.length > 0 && (
               <div key={listaPerguntas[indiceAtual]?.id_perg} className="area-pergunta">
-
-                {/* BARRA DE PROGRESSO RESTAURADA */}
                 <div className="progresso-bar">
                   <div className="progresso-feito" style={{ width: `${percentagemProgresso}%` }}></div>
                 </div>
-                <p style={{ fontSize: '0.85rem', color: 'var(--secundario)', marginBottom: '8px' }}>
-                  Questão {indiceAtual + 1} de {listaPerguntas.length} (Total respondidas: {respostasEscolhidas.length})
+                <p className="status-pergunta-texto">
+                  Questão {indiceAtual + 1} de {listaPerguntas.length} (Respondidas: {respostasEscolhidas.length})
                 </p>
 
                 <h2 className="titulo-pergunta">{listaPerguntas[indiceAtual].descricao}</h2>
@@ -314,15 +345,14 @@ function App() {
               </div>
             )}
 
-            {/* INTERMEDIÁRIO: SUBMETER OU CONTINUAR MARATONA */}
             {passo === 'tempo_acabou' && (
               <form onSubmit={submeterDadosFinais}>
-                <h2 style={{ marginBottom: '10px' }}>Bloco Concluído!</h2>
-                <p style={{ color: 'var(--secundario)', marginBottom: '20px' }}>
-                  Respondeste a {respostasEscolhidas.length} de {totalPerguntasBanco || '...'} perguntas disponíveis nesta maratona.
+                <h2 className="bloco-concluido-titulo">Bloco Concluído!</h2>
+                <p className="bloco-concluido-subtitulo">
+                  Respondeste a {respostasEscolhidas.length} de {totalPerguntasBanco || '...'} perguntas.
                 </p>
 
-                <div className="formulario-grupo" style={{ marginBottom: '20px' }}>
+                <div className="formulario-grupo">
                   <input type="text" name="nome" placeholder="Teu Nome" required={formData.autoriza_contacto === 'Y'} onChange={handleInputChange} value={formData.nome} />
                   <input type="email" name="email" placeholder="Teu E-mail" required={formData.autoriza_contacto === 'Y'} onChange={handleInputChange} value={formData.email} />
                   <input type="tel" name="telefone" placeholder="Teu Telefone" required={formData.autoriza_contacto === 'Y'} onChange={handleInputChange} value={formData.telefone} />
@@ -333,64 +363,33 @@ function App() {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div className="acoes-submissao-grupo">
                   <button type="submit" className="btn-principal">
                     💾 Submeter e Salvar Resultados
                   </button>
 
                   <button
                     type="button"
-                    className="opcao-btn"
-                    disabled={maratonaTerminou} // 🔥 Inativa nativamente no HTML do browser
-                    style={{
-                      backgroundColor: maratonaTerminou ? '#9ca3af' : '#10b981',
-                      color: '#fff',
-                      border: 'none',
-                      fontWeight: '600',
-                      cursor: maratonaTerminou ? 'not-allowed' : 'pointer',
-                      opacity: maratonaTerminou ? 0.6 : 1
-                    }}
+                    className="opcao-btn btn-continuar-maratona"
+                    disabled={maratonaTerminou}
                     onClick={async () => {
-                      // Salvaguarda imediata para evitar execuções paralelas assíncronas
                       if (maratonaTerminou) return;
-
                       const temMaisPerguntas = await carregarPerguntas(quizzesJogados, true);
-                      if (temMaisPerguntas) {
-                        setPasso('perguntas');
-                      }
+                      if (temMaisPerguntas) setPasso('perguntas');
                     }}
                   >
-                    {maratonaTerminou
-                      ? '🛑 Não há mais perguntas (Alcançaste o limite do Quiz)'
-                      : '🔥 Continuar a Jogar (... e acumular pontos)'}
+                    {maratonaTerminou ? '🛑 Maratona Concluída' : '🔥 Continuar a Jogar'}
                   </button>
-
-                  {maratonaTerminou && (
-                    <div style={{ padding: '12px', borderRadius: '8px', backgroundColor: '#fef2f2', border: '1px solid #fca5a5', marginTop: '10px' }}>
-                      <p style={{ color: '#ef4444', fontSize: '0.9rem', fontWeight: '600', textAlign: 'center', margin: 0 }}>
-                        🚫 Todos os blocos e perguntas ativos na base de dados ({totalPerguntasBanco}) foram respondidos! Submete o formulário para registar a tua pontuação.
-                      </p>
-                    </div>
-                  )}
                 </div>
               </form>
             )}
 
-            {/* SUCESSO FINAL */}
             {passo === 'fim' && (
-              <div style={{ textAlign: 'center', padding: '10px 0' }}>
-                <span style={{ fontSize: '3rem' }}>🎉</span>
-                <h2 style={{ marginTop: '14px', color: 'var(--primaria)' }}>Fim da Maratona!</h2>
-                <p style={{ color: 'var(--secundario)', marginTop: '10px', marginBottom: '24px' }}>
-                  Excelente! Registaste um total de <strong>{respostasEscolhidas.length} respostas</strong> nesta série!
-                </p>
-                <button
-                  className="btn-principal"
-                  onClick={() => {
-                    setPasso('welcome');
-                    carregarPerguntas([], false);
-                  }}
-                >
+              <div className="fim-maratona-container">
+                <span>🎉</span>
+                <h2>Fim da Maratona!</h2>
+                <p>Registaste um total de <strong>{respostasEscolhidas.length} respostas</strong>!</p>
+                <button className="btn-principal" onClick={() => { setPasso('welcome'); carregarPerguntas([], false); }}>
                   Jogar Novamente
                 </button>
               </div>
@@ -398,56 +397,97 @@ function App() {
           </div>
         )}
 
-        {/* DASHBOARD ADMINISTRATIVO */}
         {abaAtiva === 'admin' && (
           <div className="cartao-container">
-            <h2>Leads e Utilizadores Cadastrados (MySQL)</h2>
-            <button onClick={sincronizarDados}>🔄 Sincronizar</button>
-            {carregandoAdmin && <p style={{ textAlign: 'center', padding: '20px' }}>A ler dados...</p>}
-            {errorAdmin && <p style={{ color: 'var(--erro)', textAlign: 'center' }}>Erro: {errorAdmin}</p>}
-            {!carregandoAdmin && !errorAdmin && usuariosAdmin.length === 0 && <p style={{ textAlign: 'center', padding: '20px' }}>Nenhuma lead registada.</p>}
+            <div className="admin-header">
+              <h2>Tabela de Utilizadores</h2>
+              <button className="btn-atualizar" onClick={sincronizarDados}>🔄 Sincronizar</button>
+            </div>
+            
+            {carregandoAdmin && <p className="tabela-alerta-feedback">A ler dados...</p>}
+            {errorAdmin && <p className="tabela-alerta-feedback erro">Erro: {errorAdmin}</p>}
+            {!carregandoAdmin && !errorAdmin && usuariosAdmin.length === 0 && <p className="tabela-alerta-feedback">Nenhuma lead registada.</p>}
+            
             {!carregandoAdmin && !errorAdmin && usuariosAdmin.length > 0 && (
-              <table>
-                <thead>
-                  <tr>
-                    {/* <th>ID</th> */}
-                    <th>Nome</th>
-                    <th>Contactos</th>
-                    <th>Melhor Quiz</th>
-                    <th>Pontuação</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {usuariosAdmin.map((user) => (
-
-                    // 🔥 CORREÇÃO: Usar id_serie como key única para permitir o mesmo utilizador várias vezes
-                    <tr key={user.id_serie}>
-                      {/* <td data-label="ID">{user.id_user}</td> */}
-                      <td data-label="Nome">{user.nome}</td>
-                      <td data-label="Contactos">{user.email}<br />{user.telefone}</td>
-                      <td data-label="Melhor Quiz"><span style={{ fontSize: '0.85rem', color: '#666' }}>{user.quiz_pontuacao_maxima}</span></td>
-                      <td data-label="Pontuação"><span className="tag-pontuacao">{user.pontuacao_maxima} pts</span></td>
-                      <td data-label="Ações">
-                        <button className="btn-eliminar" onClick={() => {
-                          console.log("ID Série:", user.id_serie, "ID User:", user.id_user);
-                          eliminarUtilizador(user.id_serie, user.id_user);
-                        }}>
-                          Eliminar
-                        </button>
-                      </td>
+              <div className="tabela-responsiva">
+                <table className="tabela-admin">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Contactos</th>
+                      <th>Melhor Quiz</th>
+                      <th>Pontuação</th>
+                      <th>{editandoUserId ? 'Alterar Email' : 'Ações'}</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {usuariosAdmin.map((user) => (
+                      <tr key={user.id_serie}>
+                        <td data-label="Nome">{user.nome}</td>
+                        <td data-label="Contactos">
+                          <span className="email-texto">{user.email}</span>
+                          <br />
+                          <span className="telefone-texto">{user.telefone}</span>
+                        </td>
+                        <td data-label="Melhor Quiz">{user.quiz_pontuacao_maxima}</td>
+                        <td data-label="Pontuação"><span className="tag-pontuacao">{user.pontuacao_maxima} pts</span></td>
+                        <td data-label={editandoUserId === user.id_user ? "Alterar Email" : "Ações"}>
+                          <div className="acoes-container">
+                            {editandoUserId === user.id_user ? (
+                              <div className="wrapper-edicao">
+                                <input 
+                                  type="email" 
+                                  className="input-alterar-email"
+                                  placeholder="Novo e-mail"
+                                  value={novoEmailInput}
+                                  onChange={(e) => setNovoEmailInput(e.target.value)}
+                                />
+                                <div className="botoes-edicao-grupo">
+                                  <button 
+                                    className="btn-gravar"
+                                    onClick={() => alterarEmail(user.id_user, user.email)}
+                                  >
+                                    Gravar
+                                  </button>
+                                  <button 
+                                    className="btn-cancelar"
+                                    onClick={() => { setEditandoUserId(null); setNovoEmailInput(''); }}
+                                  >
+                                    X
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <>
+                                <button 
+                                  className="btn-alterar"
+                                  onClick={() => {
+                                    setEditandoUserId(user.id_user);
+                                    setNovoEmailInput(user.email);
+                                  }}
+                                >
+                                  Alterar Email
+                                </button>
+                                <button className="btn-eliminar" onClick={() => eliminarUtilizador(user.id_serie, user.id_user)}>
+                                  Eliminar
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         )}
       </main>
 
-      <footer style={{ backgroundColor: '#f4f4f4', padding: '15px 0', borderTop: '1px solid #e0e0e0', marginTop: '20px' }}>
-        <div style={{ textAlign: 'center', color: 'var(--secundario, #666)', fontSize: '0.9rem' }}>
-          © {new Date().getFullYear()} Quiz Cultural Joao Tomasio.
+      <footer className="rodape-global">
+        <div className="rodape-conteudo">
+          © {new Date().getFullYear()} Quiz cultura geral Joao Tomasio.
         </div>
       </footer>
     </div>

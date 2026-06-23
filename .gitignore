@@ -9,7 +9,7 @@ frontend/
 Construçao_README.docx
 esquema.docx
 myquiz_postgre.sql
-myquiz_db.sql
+registos.sql
 package-lock copy.json
 package-lock.json
 postcss.config.js
@@ -18,7 +18,6 @@ readme.txt.txt
 resumo_passos.txt
 REQUISITOS_PROJECTO.docx
 REQUISITOS_PROJETO_FINAL.md
-myqui_postgre.sql
 src - Backup
 to_do_U03814.docx
 serverBAK.js

@@ -42,7 +42,9 @@ const pool = mysql.createPool({ //
     database: process.env.DATABASE_NAME,
 });
 */
-// ROTA VERIFIÇAO: Verificar ligação ao backend / Estado do Quiz
+
+// 1. ROTA VERIFIÇAO
+//CRUD (READ): Verificar ligação ao backend / Estado do Quiz
 app.get('/api/status', (req, res) => {
     res.json({ 
         success: true, 
@@ -51,7 +53,9 @@ app.get('/api/status', (req, res) => {
     });
 });
 
-// ROTA INICIAL: Obter total exato de perguntas ativas no banco
+
+// 2. ROTA INICIAL
+// CRUD (READ): Obter total exato de perguntas ativas na base de dados
 app.get('/api/total_perguntas_ativas', async (req, res) => {
     try {
         const [result] = await pool.query('SELECT COUNT(*) as total FROM perguntas WHERE activa = "Y"');
@@ -62,7 +66,8 @@ app.get('/api/total_perguntas_ativas', async (req, res) => {
 });
 
 
-// 1. ROTA DO FLUXO: Obter perguntas com as respetivas respostas vinculadas
+// 3. ROTA DO FLUXO LER PERGUNTAS E RESPOSTAS
+// CRUD (READ): Obter perguntas e as respectivas respostas
 app.get('/api/init_jogo', async (req, res) => {
     try {
         console.log("--- NOVO QUIZ INICIADO ---");
@@ -73,7 +78,7 @@ app.get('/api/init_jogo', async (req, res) => {
         );
         const totalPerguntasNoBanco = totalPerguntasResult[0].total;
 
-        // 🔥 CRUCIAL: Definir o header ANTES de qualquer validação ou return de esgotado
+        // 🔥 IMPORTANTE: Definir o header ANTES de qualquer validação ou return de esgotado
         res.setHeader('X-Total-Perguntas', totalPerguntasNoBanco.toString());
 
         const [todosQuizzes] = await pool.query(
@@ -127,7 +132,8 @@ app.get('/api/init_jogo', async (req, res) => {
     }
 });
 
-// 2. ROTA DO FLUXO: Inserir Utilizador, Série e as Respostas dadas
+// 4. ROTA DO FLUXO: SUBMETER DADOS 
+//CRUD (CREATE): Inserir Utilizador, Série e as Respostas dadas
 app.post('/api/submeter', async (req, res) => {
     const { user, respostas, id_init_jogo } = req.body;
     const connection = await pool.getConnection();
@@ -177,15 +183,9 @@ app.post('/api/submeter', async (req, res) => {
     }
 });
 
-// 3. CRUD (READ): Obter todas as registos de jogadores/utilizadores
-/*app.get('/api/userstemp', async (req, res) => {
-    try {
-        const [rows] = await pool.query('SELECT id_user, nome, email, telefone, criado_em FROM user ORDER BY id_user DESC');
-        res.json(rows);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});*/
+// 5. ROTA DO FLUXO: LISTAR
+// CRUD (READ): Obter todas as registos de jogadores/utilizadores
+
 
 app.get('/api/users', async (req, res) => {
     try {
@@ -207,7 +207,7 @@ INNER JOIN (
         rs.id_serie,
         rs.id_user,
         SUM(rs.resultado_valor) AS total_jogo,
-        -- Agrupamos e garantimos que trazemos a designação correta baseada no relacionamento solicitado
+        -- minha flag19-06-2026. Agrupar e garantir que trazemos a designação certa
         MAX(ij_perg.designacao) AS designacao_quiz
     FROM resultado_serie rs
     INNER JOIN perguntas p ON rs.id_perg = p.id_perg
@@ -225,7 +225,8 @@ ORDER BY pontuacao_maxima DESC, s.criado_em DESC`;
 });
 
 
-// 4. CRUD (DELETE): Remover utilizador por ID
+// 6. ROTA DO FLUXO: REMOVER UTILIZADOR
+// CRUD (DELETE): Remover utilizador por ID
 
 app.delete('/api/series/:id_serie', async (req, res) => {
     const { id_serie } = req.params;
@@ -270,18 +271,20 @@ app.delete('/api/series/:id_serie', async (req, res) => {
 });
 
 
-// ROTA 5: Alterar o e-mail de um utilizador por ID
+// 7. ROTA DO FLUXO: ALTERAR DADOS
+// CRUD (UPDATE): Alterar o e-mail de um utilizador por ID
 app.put('/api/users/:id_user/email', async (req, res) => {
     const { id_user } = req.params;
     const { email } = req.body;
-
+    
+    
     if (!id_user || !email) {
         return res.status(400).json({ error: "O ID do utilizador e o novo e-mail são obrigatórios." });
     }
 
     // Validação simples de e-mail no lado do servidor
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    const emailcheck = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailcheck.test(email)) {
         return res.status(400).json({ error: "O formato do e-mail introduzido é inválido." });
     }
 
@@ -300,7 +303,8 @@ app.put('/api/users/:id_user/email', async (req, res) => {
     }
 });
 
-// ROTA EXTRA: Obter todos os jogos/quizzes disponíveis para o dropdown
+// 8. ROTA EXTRA: popular dropdown
+// CRUD (READ): Obter todos os jogos/quizzes disponíveis para o dropdown
 app.get('/api/jogos_disponiveis', async (req, res) => {
     try {
         // Assume-se que tens uma tabela 'init_jogo' com 'id_init_jogo' e 'designacao'

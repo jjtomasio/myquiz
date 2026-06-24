@@ -3,9 +3,13 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
- 
+-- Forçar a ligação a usar UTF-8 para evitar erros na importação
+SET NAMES utf8mb4;
+SET CHARACTER SET utf8mb4;
+
 -- Criar base de dados: `myquiz_db`
-CREATE DATABASE IF NOT EXISTS `myquiz_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+DROP DATABASE IF EXISTS `myquiz_db`;  
+CREATE DATABASE IF NOT EXISTS `myquiz_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `myquiz_db`;
 
 -- --------------------------------------------------------
@@ -21,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `init_jogo` (
   `designacao` varchar(150) NOT NULL,
   `data_criacao` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_init_jogo`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- dados da tabela `init_jogo`
@@ -47,7 +51,7 @@ CREATE TABLE IF NOT EXISTS `perguntas` (
   `activa` char(1) NOT NULL DEFAULT 'Y',
   PRIMARY KEY (`id_perg`),
   KEY `id_init_jogo` (`id_init_jogo`)
-) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- dados da tabela `perguntas`
@@ -86,7 +90,7 @@ CREATE TABLE IF NOT EXISTS `respostas` (
   PRIMARY KEY (`id_resp`),
   KEY `id_perg` (`id_perg`),
   KEY `id_init_jogo` (`id_init_jogo`)
-) ENGINE=MyISAM AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- dados da tabela `respostas`
@@ -173,7 +177,7 @@ CREATE TABLE IF NOT EXISTS `resultado_serie` (
   KEY `id_user` (`id_user`),
   KEY `id_perg` (`id_perg`),
   KEY `id_resp` (`id_resp`)
-) ENGINE=MyISAM AUTO_INCREMENT=96 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=96 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -190,7 +194,7 @@ CREATE TABLE IF NOT EXISTS `serie` (
   PRIMARY KEY (`id_serie`),
   KEY `id_init_jogo` (`id_init_jogo`),
   KEY `id_user` (`id_user`)
-) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 
@@ -209,6 +213,6 @@ CREATE TABLE IF NOT EXISTS `user` (
   `criado_em` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_user`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --

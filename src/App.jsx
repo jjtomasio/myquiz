@@ -8,7 +8,7 @@ function App() {
   // Estado para verificar a ligação e o status da API
   const [statusAPI, setStatusAPI] = useState('A verificar ligação...');
   // Estados do Fluxo do Cliente
-  const [passo, setPasso] = useState('welcome'); 
+  const [passo, setPasso] = useState('welcome');
   const [imagemFundo, setImagemFundo] = useState(null);
   const [listaPerguntas, setListaPerguntas] = useState([]);
   const [indiceAtual, setIndiceAtual] = useState(0);
@@ -246,15 +246,63 @@ function App() {
   const percentagemProgresso = totalPerguntasBanco > 0
     ? ((respostasEscolhidas.length / totalPerguntasBanco) * 100)
     : 0;
-
+  /*
+    useEffect(() => {
+      if (abaAtiva === 'client' && passo === 'perguntas' && listaPerguntas.length > 0 && listaPerguntas[indiceAtual]) {
+        const temaAtual = listaPerguntas[indiceAtual].tema || 'culture';
+        //const novaImagem = `https://loremflickr.com/1280/720/${encodeURIComponent(temaAtual)}?lock=${indiceAtual}`;
+        const novaImagem = `https://loremflickr.com/1280/720/${encodeURIComponent(temaAtual)}?lock=${indiceAtual}`;
+        setImagemFundo(novaImagem);
+      } else {
+        setImagemFundo(null);
+      }
+    }, [indiceAtual, passo, abaAtiva, listaPerguntas]);*/
   useEffect(() => {
+    let urlImagemCriada = null;
+    const obterImagemDeFundo = async (tema) => {
+
+      const apiKey = import.meta.env.VITE_API_NINJAS_KEY
+      const url = `https://api.api-ninjas.com/v1/randomimage`;
+      if (!apiKey) {
+        console.warn("Aviso: VITE_API_NINJAS_KEY não está definida no ficheiro .env!");
+        setImagemFundo(null); 
+        return;
+      }
+      try {
+        const resposta = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'X-Api-Key': apiKey,
+            'Accept': 'image/jpeg'
+          }
+        });
+
+        if (!resposta.ok) {
+          throw new Error(`Erro na API-Ninjas: ${resposta.status}`);
+        }
+
+        const imagemBlob = await resposta.blob();
+        urlImagemCriada = URL.createObjectURL(imagemBlob);
+        setImagemFundo(urlImagemCriada);
+
+      } catch (erro) {
+        console.error('Erro ao carregar imagem de fundo:', erro);
+        setImagemFundo(null);
+      }
+    };
+
     if (abaAtiva === 'client' && passo === 'perguntas' && listaPerguntas.length > 0 && listaPerguntas[indiceAtual]) {
-      const temaAtual = listaPerguntas[indiceAtual].tema || 'culture';
-      const novaImagem = `https://loremflickr.com/1280/720/${encodeURIComponent(temaAtual)}?lock=${indiceAtual}`;
-      setImagemFundo(novaImagem);
+      const temaAtual = listaPerguntas[indiceAtual].tema || 'nature';
+      obterImagemDeFundo(temaAtual);
     } else {
       setImagemFundo(null);
     }
+
+    return () => {
+      if (urlImagemCriada) {
+        URL.revokeObjectURL(urlImagemCriada);
+      }
+    };
   }, [indiceAtual, passo, abaAtiva, listaPerguntas]);
 
   const maratonaTerminou = totalPerguntasBanco > 0 && Number(respostasEscolhidas.length) >= Number(totalPerguntasBanco);
@@ -309,9 +357,9 @@ function App() {
                 </div>
 
                 <br />
-                
-                <button 
-                  className="btn-principal" 
+
+                <button
+                  className="btn-principal"
                   onClick={() => setPasso('perguntas')}
                   disabled={!statusAPI.includes('pronto')}
                 >
@@ -400,14 +448,14 @@ function App() {
         {abaAtiva === 'admin' && (
           <div className="cartao-container">
             <div className="admin-header">
-              <h2>Tabela de Utilizadores</h2>
+              <h2>Best players</h2>
               <button className="btn-atualizar" onClick={sincronizarDados}>🔄 Sincronizar</button>
             </div>
-            
+
             {carregandoAdmin && <p className="tabela-alerta-feedback">A ler dados...</p>}
             {errorAdmin && <p className="tabela-alerta-feedback erro">Erro: {errorAdmin}</p>}
             {!carregandoAdmin && !errorAdmin && usuariosAdmin.length === 0 && <p className="tabela-alerta-feedback">Nenhuma lead registada.</p>}
-            
+
             {!carregandoAdmin && !errorAdmin && usuariosAdmin.length > 0 && (
               <div className="tabela-responsiva">
                 <table className="tabela-admin">
@@ -435,21 +483,21 @@ function App() {
                           <div className="acoes-container">
                             {editandoUserId === user.id_user ? (
                               <div className="wrapper-edicao">
-                                <input 
-                                  type="email" 
+                                <input
+                                  type="email"
                                   className="input-alterar-email"
                                   placeholder="Novo e-mail"
                                   value={novoEmailInput}
                                   onChange={(e) => setNovoEmailInput(e.target.value)}
                                 />
                                 <div className="botoes-edicao-grupo">
-                                  <button 
+                                  <button
                                     className="btn-gravar"
                                     onClick={() => alterarEmail(user.id_user, user.email)}
                                   >
                                     Gravar
                                   </button>
-                                  <button 
+                                  <button
                                     className="btn-cancelar"
                                     onClick={() => { setEditandoUserId(null); setNovoEmailInput(''); }}
                                   >
@@ -459,7 +507,7 @@ function App() {
                               </div>
                             ) : (
                               <>
-                                <button 
+                                <button
                                   className="btn-alterar"
                                   onClick={() => {
                                     setEditandoUserId(user.id_user);
@@ -487,7 +535,7 @@ function App() {
 
       <footer className="rodape-global">
         <div className="rodape-conteudo">
-          © {new Date().getFullYear()} Quiz cultura geral Joao Tomasio.
+          © {new Date().getFullYear()} Quiz cultura geral Joao Tomasio
         </div>
       </footer>
     </div>

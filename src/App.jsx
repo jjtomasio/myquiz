@@ -454,7 +454,7 @@ function App() {
 
             {carregandoAdmin && <p className="tabela-alerta-feedback">A ler dados...</p>}
             {errorAdmin && <p className="tabela-alerta-feedback erro">Erro: {errorAdmin}</p>}
-            {!carregandoAdmin && !errorAdmin && usuariosAdmin.length === 0 && <p className="tabela-alerta-feedback">Nenhuma lead registada.</p>}
+            {!carregandoAdmin && !errorAdmin && usuariosAdmin.length === 0 && <p className="tabela-alerta-feedback">Nenhuma pontuaçao registada.</p>}
 
             {!carregandoAdmin && !errorAdmin && usuariosAdmin.length > 0 && (
               <div className="tabela-responsiva">

@@ -25,7 +25,9 @@ npm install *instala os pacotes com dependencias configuradas em package.jsons*
 
 # PASSO 3 ##################################################
 # 3 Criar base de dados
+*abra um terminal BASH no VS code e digite*
 mysql -u root -p < myquiz_db.sql
+
 *Nota: O terminal vai pedir a sua palavra-passe de seguida. O comando '<' injeta todo o conteúdo do ficheiro diretamente no MySQL.*
 
 *se nao tem MYSQL instalado, ou o terminal do VS Code nao sabe onde ele está, execute estes comandos no BASH*
@@ -52,6 +54,12 @@ mysql -u root -p < myquiz_db.sql
 *altere o nome do ficheiro para .env*
 *coloque a sua password MYSQL no campo DATABASE_PASSWORD="a sua senha mysql"*
 *edite os campos HOST, PORT ou USER para os valores da sua configuraçao MYSQL*
+VITE_API_NINJAS_KEY= a-sua-chave-API-aqui
+# Chave de API para o gerador de imagens de fundo (API-Ninjas)
+# Podes obter uma chave gratuita em: https://api-ninjas.com/
+# ou usar temporariamente a chave fornecida no readme do projeto
+# qdJHah6uF2eUOEfY86Jcq2gCu1v7Zj3m5zAhYYF8
+
 *grave e feche o ficheiro*
 
 

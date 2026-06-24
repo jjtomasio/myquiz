@@ -5,7 +5,7 @@
 *##############################################*
 *-                     ___                   -*
 *-                    |__                    -*
-*-       SIGA ESTES   __|   PASSOS           -*
+*-       SEGUE ESTES   __|   PASSOS           -*
 *-                                           -*
 *-                                           -*
 *##############################################*
@@ -16,19 +16,19 @@ git clone --depth 1 https://github.com/jjtomasio/myquiz.git
 
 # PASSO 2 ##################################################
 # instalar dependencias
-*abra um terminal no VS code*
-*navegue para a pasta do projecto*
+*abre um terminal no VS code*
+*navega para a pasta do projecto*
 cd myquiz
-*DIGITE ESTES COMANDOS*
+*DIGITA ESTES COMANDOS*
 
-npm install *instala os pacotes com dependencias configuradas em package.jsons*
+npm install *instala os pacotes cconforme dependencias configuradas em package.json*
 
 # PASSO 3 ##################################################
 # 3 Criar base de dados
-*abra um terminal BASH no VS code e digite*
+*abre um terminal BASH no VS code e digite*
 mysql -u root -p < myquiz_db.sql
 
-*Nota: O terminal vai pedir a sua palavra-passe de seguida. O comando '<' injeta todo o conteúdo do ficheiro diretamente no MySQL.*
+*Nota: O terminal vai pedir a tua palavra-passe de seguida. O comando '<' injeta todo o conteúdo do ficheiro diretamente no MySQL.*
 
 *se nao tem MYSQL instalado, ou o terminal do VS Code nao sabe onde ele está, execute estes comandos no BASH*
    *WINDOWS*
@@ -44,23 +44,25 @@ mysql -u root -p < myquiz_db.sql
     *REPETIR NOVAMENTE APENAS NO LINUX OU MAC*    
         mysql -u root -p < myquiz_db.sql
 
-*Verifique se a base de dados foi criada com as tabelas:*
+*Verifica se a base de dados foi criada com as tabelas:*
 *init_jogo, perguntas, respostas, resultado_serie, serie e user*    
 
 
 
 # PASSO 4 ##################################################
 # edite o ficheiro .env.example
-*altere o nome do ficheiro para .env*
-*coloque a sua password MYSQL no campo DATABASE_PASSWORD="a sua senha mysql"*
-*edite os campos HOST, PORT ou USER para os valores da sua configuraçao MYSQL*
+*altera o nome do ficheiro para .env*
+*coloca a tua password MYSQL no campo DATABASE_PASSWORD="a sua senha mysql"*
+*edita os campos HOST, PORT ou USER para os valores da sua configuraçao MYSQL*
+
+*certifica-te ainda que a seguinte API_KEY fica configurada*
 VITE_API_NINJAS_KEY= a-sua-chave-API-aqui
 # Chave de API para o gerador de imagens de fundo (API-Ninjas)
 # Podes obter uma chave gratuita em: https://api-ninjas.com/
-# ou usar temporariamente a chave fornecida no readme do projeto
+# ou usar temporariamente a chave de teste fornecida no readme do projeto
 # qdJHah6uF2eUOEfY86Jcq2gCu1v7Zj3m5zAhYYF8
 
-*grave e feche o ficheiro*
+*gravea e feche o ficheiro*
 
 
 # PASSO 5 ##################################################
@@ -75,12 +77,12 @@ npm run server
 
 *o terminal 1 deve ficar com o servidor de desenvolvimento do Vite activo na porta 5173 - VITE v5.4.xx  ready in xxx ms*
 *o terminal 2 deve ficar com Servidor de API ativo na porta 3000 e Ligação ao MySQL estabelecida com sucesso!*
-*NAO FECHE ESTES TERMINAIS enquanto quiser correr a aplicaçao*
+*NAO FECHES ESTES TERMINAIS enquanto quiseres correr a aplicaçao*
 
 # PASSO 6 ##################################################
 # CORRER A APLICAÇAO
-*Para abrir o seu projeto abra o seu navegador de internet e digite* 
+*Para abrir o seu projeto abre o browser digita*
 localhost:5173
 
 # OBSERVAÇOES:
-*se algo falhar, siga os passos nas instruçoes do ficheiro README.MD
+*se algo falhar, siga os passos nas instruçoes do ficheiro README.MD*

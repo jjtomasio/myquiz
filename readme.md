@@ -41,10 +41,11 @@ Importe o ficheiro `myquiz_db.sql` através do terminal bash ou da interface Wor
 
   
 * **LINUX Ubuntu, Debian, Mint ou Pop!_OS**
+```bash
 # este readme foi feito para Windows, no entanto os utilizadores Linux ou Mac podem fazer o seguinte
 
 # Certifique-se de que o MySQL está ativo no sistema; se necessário, abra o terminal e digite
-```bash
+
 sudo apt update
 sudo apt install mysql-server -y
 sudo systemctl start mysql
@@ -53,9 +54,9 @@ sudo mysql -u root myquiz_db < myquiz_db.sql
 ```
 
 * **MAC_OS**
-
-# Assegure-se que o serviço local está activo no Mac. Se necessário execute os seguintes comandos
 ```bash
+# Assegure-se que o serviço local está activo no Mac. Se necessário execute os seguintes comandos
+
 # 1. Instalar e iniciar o servidor MySQL (caso não tenha)
 brew install mysql
 brew services start mysql
@@ -80,11 +81,12 @@ DATABASE_PASSWORD="A_SUA_SENHA_MYSQL"
 DATABASE_NAME="myquiz_db"
 
 VITE_API_NINJAS_KEY= a-sua-chave-API-aqui
+# Chave de API para o gerador de imagens de fundo (API-Ninjas)
+# Podes obter uma chave gratuita em: https://api-ninjas.com/
+ou usar temporariamente a seguinte chave de teste 
+qdJHah6uF2eUOEfY86Jcq2gCu1v7Zj3m5zAhYYF8
 ```
-<!-- Chave de API para o gerador de imagens de fundo (API-Ninjas)-->
-<!-- # Podes obter uma chave gratuita em: https://api-ninjas.com/ -->
-<!--ou usar temporariamente a seguinte chave de teste 
-<!-- qdJHah6uF2eUOEfY86Jcq2gCu1v7Zj3m5zAhYYF8 -->
+
 
 ---
 

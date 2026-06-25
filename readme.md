@@ -83,10 +83,22 @@ DATABASE_NAME="myquiz_db"
 VITE_API_NINJAS_KEY= a-sua-chave-API-aqui
 # Chave de API para o gerador de imagens de fundo (API-Ninjas)
 # Podes obter uma chave gratuita em: https://api-ninjas.com/
-ou usar temporariamente a seguinte chave de teste 
-qdJHah6uF2eUOEfY86Jcq2gCu1v7Zj3m5zAhYYF8
+# ou usar temporariamente a seguinte chave de teste qdJHah6uF2eUOEfY86Jcq2gCu1v7Zj3m5zAhYYF8
 ```
 
+
+---
+## 🌐 Rotas API (Explicação Rápida)
+
+| Método | Endpoint | Descrição |
+| :--- | :--- | :--- |
+| `GET` | `/api/status` | Verifica se a API está online e disponível. |
+| `GET` | `/api/total_perguntas_ativas` | Retorna o total de perguntas registadas na BD. |
+| `GET` | `/api/init_jogo` | Obtém perguntas e respostas aleatórias para o quiz. |
+| `GET` | `/api/users` | Retorna a lista completa de utilizadores registados. |
+| `POST` | `/api/submeter` | Grava a pontuação final e os dados do utilizador no ranking. |
+| `DELETE` | `/api/series/:id_serie` | Remove permanentemente um registo através do ID da série. |
+| `PUT` | `/api/users/:id_user/email` | Atualiza o endereço de email de um utilizador específico. |
 
 ---
 
@@ -101,30 +113,22 @@ npm run server
 npm run dev
 ```
 
-## 🌐 Rotas da API (Explicação Rápida)
+## 🌐 Correr a aplicaçao ###############################
 
-| Método | Endpoint | Descrição |
-| :--- | :--- | :--- |
-| `GET` | `/api/status` | Verifica se a API está online e disponível. |
-| `GET` | `/api/total_perguntas_ativas` | Retorna o total de perguntas registadas na BD. |
-| `GET` | `/api/init_jogo` | Obtém perguntas e respostas aleatórias para o quiz. |
-| `GET` | `/api/users` | Retorna a lista completa de utilizadores registados. |
-| `POST` | `/api/submeter` | Grava a pontuação final e os dados do utilizador no ranking. |
-| `DELETE` | `/api/series/:id_serie` | Remove permanentemente um registo através do ID da série. |
-| `PUT` | `/api/users/:id_user/email` | Atualiza o endereço de email de um utilizador específico. |
+Abra o browser e navegar para `http://localhost:5173`
 
----
 
 ## 🕹️ Exemplos Simples de Utilização
 
 ### Exemplo 1: Responder ao Quiz
-1. Abra o navegador em `http://localhost:5173` e clique em **Iniciar Quiz**.
+1. Em `http://localhost:5173` clique **Iniciar Quiz**.
 2. Responda às 5 perguntas da ronda selecionando uma das 4 opções.
 3. No final da ronda, escreva o seu nome e submeta para guardar o seu resultado no **Ranking**.
 
 ### Exemplo 2: Gerir o Ranking (Administração)
 1. Aceda ao separador **Ranking** no menu do Frontend para consultar a tabela de classificações.
-2. Clique no botão de eliminar junto a um registo para remover essa pontuação (aciona a rota `DELETE`).
+2. Clique no botão Alterar email junto a um registo para editar esse campo (aciona a rota `PUT`).  Clique Gravar para submeter alteraçoes; Clique 2 ok para confirmar
+3. Clique no botão de eliminar junto a um registo para remover essa pontuação (aciona a rota `DELETE`). Clique OK para confirmar ou Cancelar para anular açao.
 
 ---
 

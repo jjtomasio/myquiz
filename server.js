@@ -225,8 +225,8 @@ ORDER BY pontuacao_maxima DESC, s.criado_em DESC`;
 });
 
 
-// 6. ROTA DO FLUXO: REMOVER UTILIZADOR
-// CRUD (DELETE): Remover utilizador por ID
+// 6. ROTA DO FLUXO: REMOVER REGISTO
+// CRUD (DELETE): Remover utilizador por ID_SERIE
 
 app.delete('/api/series/:id_serie', async (req, res) => {
     const { id_serie } = req.params;
@@ -303,23 +303,8 @@ app.put('/api/users/:id_user/email', async (req, res) => {
     }
 });
 
-// 8. ROTA EXTRA: popular dropdown
-// CRUD (READ): Obter todos os jogos/quizzes disponíveis para o dropdown
-app.get('/api/jogos_disponiveis', async (req, res) => {
-    try {
-        // Assume-se que tens uma tabela 'init_jogo' com 'id_init_jogo' e 'designacao'
-        // Se não tiveres a tabela separada, podemos ir buscar diretamente às perguntas com DISTINCT
-        const [rows] = await pool.query('SELECT DISTINCT id_init_jogo, designacao FROM init_jogo ORDER BY id_init_jogo ASC');
 
-        // Caso a tabela 'init_jogo' não exista ou use outro nome, alternativa de recurso:
-        // const [rows] = await pool.query('SELECT DISTINCT id_init_jogo, "Quiz " + id_init_jogo AS designacao FROM perguntas WHERE activa = "Y"');
-
-        res.json(rows);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
+//INICLIZAR SERVIDOR EXPRESS
 app.listen(port, async () => {
     console.log(`Servidor de API ativo na porta ${port}`);
     try {

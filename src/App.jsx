@@ -535,7 +535,7 @@ function App() {
 
       <footer className="rodape-global">
         <div className="rodape-conteudo">
-          © {new Date().getFullYear()} Quiz cultura geral Joao Tomasio
+          © {new Date().getFullYear()} Quiz cultura geral Joao Tomásio
         </div>
       </footer>
     </div>

@@ -13,7 +13,6 @@ CREATE DATABASE IF NOT EXISTS `myquiz_db` DEFAULT CHARACTER SET utf8mb4 COLLATE 
 USE `myquiz_db`;
 
 -- --------------------------------------------------------
-
 --
 -- Estrutura da tabela `init_jogo`
 --

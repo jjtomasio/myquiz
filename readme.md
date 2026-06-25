@@ -38,9 +38,11 @@ Importe o ficheiro `myquiz_db.sql` através do terminal bash ou da interface Wor
   /c/Program\ Files/MySQL/MySQL\ Server\ 8.0/bin/mysql -u root -p < myquiz_db.sql
   ```
   
-# este readme foi feito para Windows, no entanto os utilizadores Linux ou Mac podem fazer o seguinte
+
   
-* *LINUX Ubuntu, Debian, Mint ou Pop!_OS*
+* **LINUX Ubuntu, Debian, Mint ou Pop!_OS**
+# este readme foi feito para Windows, no entanto os utilizadores Linux ou Mac podem fazer o seguinte
+
 # Certifique-se de que o MySQL está ativo no sistema; se necessário, abra o terminal e digite
 ```bash
 sudo apt update
@@ -49,7 +51,9 @@ sudo systemctl start mysql
 sudo mysql -u root -e "CREATE DATABASE IF NOT EXISTS myquiz_db;"
 sudo mysql -u root myquiz_db < myquiz_db.sql
 ```
-*MAC_OS*
+
+* **MAC_OS**
+
 # Assegure-se que o serviço local está activo no Mac. Se necessário execute os seguintes comandos
 ```bash
 # 1. Instalar e iniciar o servidor MySQL (caso não tenha)
@@ -123,4 +127,4 @@ npm run dev
 ---
 
 ## 👨‍💻 Autor
-**João Tomásio** - Projeto Formativo V2767|U03814 (2026)
+**João Tomásio** - jjtomasio@gmail.com - Projeto Formativo V2767|U03814 (2026)

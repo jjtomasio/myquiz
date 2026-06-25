@@ -13,15 +13,7 @@ app.use(express.json());
 
 // Conexão Pool à Base de Dados MySQL
 
-//require('dotenv').config();
-//const mysql = require('mysql2');
-/*DB_HOST=sql7.freesqldatabase.com
-DB_USER=sql7830939
-DB_PASSWORD=wneveRbXXf
-DB_NAME=sql7830939
-DB_PORT=3306
-PORT=5000
-*/
+ 
 
 const pool = mysql.createPool({
     host: process.env.DATABASE_HOST || '127.0.0.1',
@@ -32,16 +24,7 @@ const pool = mysql.createPool({
     waitForConnections: true,
     connectionLimit: 10
 });
-/*
-const pool = mysql.createPool({ //
-
-    host: process.env.DATABASE_HOST,
-    port: Number(process.env.DATABASE_PORT || 3306),
-    user: process.env.DATABASE_USER,
-    password: process.env.DATABASE_PASSWORD,
-    database: process.env.DATABASE_NAME,
-});
-*/
+ 
 
 // 1. ROTA VERIFIÇAO
 //CRUD (READ): Verificar ligação ao backend / Estado do Quiz

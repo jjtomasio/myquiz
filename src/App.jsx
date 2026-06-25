@@ -40,7 +40,7 @@ function App() {
       .then(res => res.json())
       .then(data => {
         if (data && data.success) {
-          setStatusAPI(data.message); // Define a mensagem: "O quiz está pronto a ser iniciado!"
+          setStatusAPI(data.message); // Definir a mensagem Quiz está pronto a ser iniciado!"
         } else {
           setStatusAPI('Servidor online, mas com resposta inesperada.');
         }
@@ -246,17 +246,7 @@ function App() {
   const percentagemProgresso = totalPerguntasBanco > 0
     ? ((respostasEscolhidas.length / totalPerguntasBanco) * 100)
     : 0;
-  /*
-    useEffect(() => {
-      if (abaAtiva === 'client' && passo === 'perguntas' && listaPerguntas.length > 0 && listaPerguntas[indiceAtual]) {
-        const temaAtual = listaPerguntas[indiceAtual].tema || 'culture';
-        //const novaImagem = `https://loremflickr.com/1280/720/${encodeURIComponent(temaAtual)}?lock=${indiceAtual}`;
-        const novaImagem = `https://loremflickr.com/1280/720/${encodeURIComponent(temaAtual)}?lock=${indiceAtual}`;
-        setImagemFundo(novaImagem);
-      } else {
-        setImagemFundo(null);
-      }
-    }, [indiceAtual, passo, abaAtiva, listaPerguntas]);*/
+
   useEffect(() => {
     let urlImagemCriada = null;
     const obterImagemDeFundo = async (tema) => {

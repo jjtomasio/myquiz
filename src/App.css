@@ -315,14 +315,14 @@ body {
 
 .checkbox-grupo {
   display: flex;
-  align-items: center; /* Alinha a checkbox verticalmente ao centro com o texto */
-  justify-content: flex-start; /* Garante que tudo começa colado à esquerda */
-  gap: 8px; /* Controla o espaço exato entre o quadrado e o texto */
+  align-items: center; 
+  justify-content: flex-start; 
+  gap: 8px; 
   padding: 10px 12px;
   background-color: #f8fafc;
   border-radius: 8px;
   border: 1px dashed var(--borda);
-  width: 100%; /* O contentor ocupa a largura total */
+  width: 100%; 
 }
 
 /* Evita que a checkbox herde a largura de 100% aplicada aos restantes inputs */
